@@ -169,12 +169,44 @@ class Sudoku():
         '''
 
         # TASK 2 Code here
-
+        
         #Modify these return values!!
         if mode == 'remove':
-            return True
+            hasEmptyDomain = False
+
+            for colInd in range(0, len(self.cells[row])):
+                if colInd == column:
+                    continue
+                rowCell = self.cells[row][colInd]
+                hasValue = rowCell.remove_value(value)
+                if (hasValue == False):
+                    hasEmptyDomain = True
+            
+            for rowInd in range(0, len(self.cells)):
+                if rowInd == row:
+                    continue
+                colCell = self.cells[rowInd][column]
+                hasValue = colCell.remove_value(value)
+                if (hasValue == False):
+                    hasEmptyDomain = True
+                    
+            return not hasEmptyDomain
         elif mode == 'count': 
-            return 0
+            removeCount = 0
+
+            for colInd in range(0, len(self.cells[row])):
+                if colInd == column:
+                    continue
+                rowCell = self.cells[row][colInd]
+                if (rowCell.domain.count(value) > 0):
+                    removeCount += 1
+            for rowInd in range(0, len(self.cells)):
+                if rowInd == row:
+                    continue
+                colCell = self.cells[rowInd][column]
+                if (colCell.domain.count(value) > 0):
+                    removeCount += 1
+            return removeCount
 
     def get_row_column(self, grid, cell):
         '''
