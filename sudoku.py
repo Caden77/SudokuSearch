@@ -295,6 +295,31 @@ def count_constraints(puzzle, row, column):
     '''
 
     # TASK 3 CODE HERE
+    unassignedCount = 0
+
+    #row
+    for colInd in range(0, len(puzzle.cells[row])):
+        if colInd == column:
+            continue
+        rowCell = puzzle.cells[row][colInd]
+        unassignedCount += len(rowCell.domain)
+
+    #column
+    for rowInd in range(0, len(puzzle.cells)):
+        if rowInd == row:
+            continue
+        colCell = puzzle.cells[rowInd][column]
+        unassignedCount += len(colCell.domain)
+    #grid
+    grid, cell = puzzle.get_grid_cell(row, column)
+    for cellInd in range(0, 9):
+        if cellInd == cell:
+            continue
+        r, c = puzzle.get_row_column(grid, cell)
+        gridCell = puzzle.cells[r][c]
+        unassignedCount += len(gridCell.domain)
+
+    #TODO: account for double counts in grid calculation for both task 2 and task 3
     
     #MODIFY THIS
     # return 0
