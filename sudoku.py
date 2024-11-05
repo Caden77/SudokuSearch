@@ -174,6 +174,7 @@ class Sudoku():
         if mode == 'remove':
             hasEmptyDomain = False
 
+            #row
             for colInd in range(0, len(self.cells[row])):
                 if colInd == column:
                     continue
@@ -181,7 +182,7 @@ class Sudoku():
                 hasValue = rowCell.remove_value(value)
                 if (hasValue == False):
                     hasEmptyDomain = True
-            
+            #column
             for rowInd in range(0, len(self.cells)):
                 if rowInd == row:
                     continue
@@ -189,23 +190,45 @@ class Sudoku():
                 hasValue = colCell.remove_value(value)
                 if (hasValue == False):
                     hasEmptyDomain = True
+            #grid
+            grid, cell = self.get_grid_cell(row, column)
+            for cellInd in range(0, 9):
+                if cellInd == cell:
+                    continue
+                r, c = self.get_row_column(grid, cell)
+                gridCell = self.cells[r][c]
+                hasValue = gridCell.remove_value(value)
+                if (hasValue == False):
+                    hasEmptyDomain = True
                     
             return not hasEmptyDomain
         elif mode == 'count': 
             removeCount = 0
 
+            #row
             for colInd in range(0, len(self.cells[row])):
                 if colInd == column:
                     continue
                 rowCell = self.cells[row][colInd]
                 if (rowCell.domain.count(value) > 0):
                     removeCount += 1
+            #column
             for rowInd in range(0, len(self.cells)):
                 if rowInd == row:
                     continue
                 colCell = self.cells[rowInd][column]
                 if (colCell.domain.count(value) > 0):
                     removeCount += 1
+            #grid
+            grid, cell = self.get_grid_cell(row, column)
+            for cellInd in range(0, 9):
+                if cellInd == cell:
+                    continue
+                r, c = self.get_row_column(grid, cell)
+                gridCell = self.cells[r][c]
+                if (gridCell.domain.count(value) > 0):
+                    removeCount += 1
+
             return removeCount
 
     def get_row_column(self, grid, cell):
