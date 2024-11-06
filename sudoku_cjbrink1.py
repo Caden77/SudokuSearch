@@ -1,6 +1,7 @@
 from __future__ import print_function
 import sys
 import time
+import random
 
 # Code for AI Class Sudoku Programming Assignment
 # Written by Chris Archibald
@@ -205,10 +206,12 @@ class Sudoku():
             #grid
             grid, cell = self.get_grid_cell(row, column)
             for cellInd in range(0, 9):
+                #get cell
                 if cellInd == cell:
                     continue
                 r, c = self.get_row_column(grid, cellInd)
                 gridCell = self.cells[r][c]
+                #remove
                 hasValue = gridCell.remove_value(value)
                 if (hasValue == False):
                     hasEmptyDomain = True
@@ -427,6 +430,8 @@ def select_variable(puzzle):
     unassigned = get_unassigned_variables(puzzle)
     
     # 1. Use MRV heuristic to get list of variables with the min remaining values
+    # minimum_remaining_values = unassigned
+    # random.shuffle(minimum_remaining_values)
     minimum_remaining_values = mrv(puzzle, unassigned)  
 
     # If MRV identifies a unique variable, then return it
@@ -434,6 +439,8 @@ def select_variable(puzzle):
         return minimum_remaining_values[0][0], minimum_remaining_values[0][1]
 
     # 2. Refine list to those with maximum degree
+    # most_constaining_variables = minimum_remaining_values
+    # random.shuffle(most_constaining_variables)
     most_constaining_variables = max_degree(puzzle, minimum_remaining_values)
 
     # 3. Return first variable in the list.  This will be the only one if there was a 
@@ -491,7 +498,6 @@ def backtracking_search(puzzle):
     # 3. Select an ordering over the values (use order_values(r,c) where r, c are the row
     #    and column of the selected variable.  It returns a list of values
     orderedDomain = order_values(puzzle, selRow, selCol)
-
 
     # 4. For each value in the ordered list:
     for num in orderedDomain:
