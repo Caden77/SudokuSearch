@@ -168,6 +168,9 @@ class Sudoku():
         of how many values forward checking would remove
         '''
 
+        #debug print
+        print("in forward check")
+
         # TASK 2 Code here
         
         #Modify these return values!!
@@ -213,6 +216,7 @@ class Sudoku():
                 if (hasValue == False):
                     hasEmptyDomain = True
                     
+            print("out of forward check2")
             return not hasEmptyDomain
         elif mode == 'count': 
             removeCount = 0
@@ -249,6 +253,8 @@ class Sudoku():
                 colCell = self.cells[rowInd][column]
                 if (colCell.domain.count(value) > 0):
                     removeCount += 1
+            
+            print("out of forward check1")
 
             return removeCount
 
@@ -284,6 +290,7 @@ def mrv(puzzle, unassigned):
     that have the minimum remaining values 
     [unassigned] is a list of (row, column) tuples corresponding to cell locations
     '''
+    print("in mrv")
     minArr = None
     minLen = 0
     for posTuple in unassigned:
@@ -299,6 +306,7 @@ def mrv(puzzle, unassigned):
             minArr = [posTuple]
             minLen = currLen
 
+    print("out of mrv")
     # Change this.  Return your list of minimum remaining value locations
     return minArr
 
@@ -328,6 +336,7 @@ def count_constraints(puzzle, row, column):
     return this number
     This is called by the max_degree function
     '''
+    print("in count constraints")
 
     # TASK 3 CODE HERE
     # if puzzle.cells[row][column] == None:
@@ -366,6 +375,8 @@ def count_constraints(puzzle, row, column):
         colCell = puzzle.cells[rowInd][column]
         if colCell.value == None:
             unassignedCount += 1
+    
+    print("out of count constraints")
     
     #MODIFY THIS
     return unassignedCount
@@ -416,15 +427,27 @@ def order_values(puzzle, row, column):
     in the 'count' mode to count the number of values that would be removed from other variables'
     domains by a particular variable=value assignment
     '''
+    print("in order_values")
 
     #Get the current domain for this variable
     domain = puzzle.cells[row][column].domain[:]
+    print("prev domain: " + str(domain))
+    listToSort = []
+    for num in domain:
+        constrainTotal = puzzle.forward_check(row, column, num, mode='count')
+        listToSort.append(constrainTotal, num)
+    sortedTupleDomain = sorted(listToSort)
+    sortedDomain = []
+    for tup in sortedTupleDomain:
+        sortedDomain.append(tup[1])
+    print("printing sorted Domain: " + str(sortedDomain))
 
     # TASK 5 CODE HERE
     
 
+    print("out of order values")
     #Change this to return an ordered list
-    return domain
+    return sortedDomain
 
 def backtracking_search(puzzle):
     '''
