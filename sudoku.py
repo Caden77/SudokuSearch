@@ -284,9 +284,23 @@ def mrv(puzzle, unassigned):
     that have the minimum remaining values 
     [unassigned] is a list of (row, column) tuples corresponding to cell locations
     '''
+    minArr = None
+    minLen = 0
+    for posTuple in unassigned:
+        currCell = puzzle.cells[posTuple[0], posTuple[1]]
+        currLen = len(currCell.domain)
+        if (minArr == None):
+            minArr = [posTuple]
+            minLen = currLen
+        elif (minLen == currLen):
+            minArr.append(posTuple)
+        elif (minLen > currLen):
+            #reset
+            minArr = [posTuple]
+            minLen = currLen
 
     # Change this.  Return your list of minimum remaining value locations
-    return unassigned
+    return minArr
 
 def max_degree(puzzle, tied):
     '''
@@ -316,6 +330,8 @@ def count_constraints(puzzle, row, column):
     '''
 
     # TASK 3 CODE HERE
+    # if puzzle.cells[row][column] == None:
+    #     return None
     unassignedCount = 0
 
     #grid
