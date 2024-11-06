@@ -156,6 +156,34 @@ class Sudoku():
                         print('Contradiction in Puzzle! Invalid input. Exiting')
                         print(' Puzzle string: ', puzzle_string)
                         sys.exit()
+
+    def debugPrintPuzzle(self):
+        for r in range(9):
+            if (r % 3) == 0 and r > 0:
+                print('\n')
+            for c in range(9):
+                if (c % 3) == 0 and c > 0:
+                    print(' ', end="")
+                if self.cells[r][c].value is None:
+                    print('.', end="")
+                else:
+                    print(self.cells[r][c].value, end="")
+            print('')
+    
+    def debugPrintPuzzleDomain(self, num):
+        for r in range(9):
+            if (r % 3) == 0 and r > 0:
+                print('\n')
+            for c in range(9):
+                if (c % 3) == 0 and c > 0:
+                    print(' ', end="")
+                if self.cells[r][c].value != None:
+                    print("+", end="")
+                elif self.cells[r][c].domain.count(num) > 0:
+                    print(str(num), end="")
+                else:
+                    print("_", end="")
+            print('')
         
 
     def forward_check(self, row, column, value, mode='remove'):
@@ -168,9 +196,6 @@ class Sudoku():
         of how many values forward checking would remove
         '''
 
-        #debug print
-        print("in forward check")
-
         # TASK 2 Code here
         
         #Modify these return values!!
@@ -182,7 +207,7 @@ class Sudoku():
             for cellInd in range(0, 9):
                 if cellInd == cell:
                     continue
-                r, c = self.get_row_column(grid, cell)
+                r, c = self.get_row_column(grid, cellInd)
                 gridCell = self.cells[r][c]
                 hasValue = gridCell.remove_value(value)
                 if (hasValue == False):
@@ -215,8 +240,7 @@ class Sudoku():
                 hasValue = colCell.remove_value(value)
                 if (hasValue == False):
                     hasEmptyDomain = True
-                    
-            print("out of forward check2")
+            
             return not hasEmptyDomain
         elif mode == 'count': 
             removeCount = 0
@@ -225,7 +249,7 @@ class Sudoku():
             for cellInd in range(0, 9):
                 if cellInd == cell:
                     continue
-                r, c = self.get_row_column(grid, cell)
+                r, c = self.get_row_column(grid, cellInd)
                 gridCell = self.cells[r][c]
                 if (gridCell.domain.count(value) > 0):
                     removeCount += 1
@@ -253,8 +277,7 @@ class Sudoku():
                 colCell = self.cells[rowInd][column]
                 if (colCell.domain.count(value) > 0):
                     removeCount += 1
-            
-            print("out of forward check1")
+        
 
             return removeCount
 
@@ -290,11 +313,12 @@ def mrv(puzzle, unassigned):
     that have the minimum remaining values 
     [unassigned] is a list of (row, column) tuples corresponding to cell locations
     '''
-    print("in mrv")
     minArr = None
     minLen = 0
     for posTuple in unassigned:
-        currCell = puzzle.cells[posTuple[0], posTuple[1]]
+        row = posTuple[0]
+        col = posTuple[1]
+        currCell = puzzle.cells[row][col]
         currLen = len(currCell.domain)
         if (minArr == None):
             minArr = [posTuple]
@@ -306,7 +330,6 @@ def mrv(puzzle, unassigned):
             minArr = [posTuple]
             minLen = currLen
 
-    print("out of mrv")
     # Change this.  Return your list of minimum remaining value locations
     return minArr
 
@@ -336,7 +359,6 @@ def count_constraints(puzzle, row, column):
     return this number
     This is called by the max_degree function
     '''
-    print("in count constraints")
 
     # TASK 3 CODE HERE
     # if puzzle.cells[row][column] == None:
@@ -348,7 +370,7 @@ def count_constraints(puzzle, row, column):
     for cellInd in range(0, 9):
         if cellInd == cell:
             continue
-        r, c = puzzle.get_row_column(grid, cell)
+        r, c = puzzle.get_row_column(grid, cellInd)
         gridCell = puzzle.cells[r][c]
         if gridCell.value == None:
             unassignedCount += 1
@@ -375,8 +397,7 @@ def count_constraints(puzzle, row, column):
         colCell = puzzle.cells[rowInd][column]
         if colCell.value == None:
             unassignedCount += 1
-    
-    print("out of count constraints")
+
     
     #MODIFY THIS
     return unassignedCount
@@ -427,25 +448,20 @@ def order_values(puzzle, row, column):
     in the 'count' mode to count the number of values that would be removed from other variables'
     domains by a particular variable=value assignment
     '''
-    print("in order_values")
 
     #Get the current domain for this variable
     domain = puzzle.cells[row][column].domain[:]
-    print("prev domain: " + str(domain))
     listToSort = []
     for num in domain:
         constrainTotal = puzzle.forward_check(row, column, num, mode='count')
-        listToSort.append(constrainTotal, num)
+        listToSort.append((constrainTotal, num))
     sortedTupleDomain = sorted(listToSort)
     sortedDomain = []
     for tup in sortedTupleDomain:
         sortedDomain.append(tup[1])
-    print("printing sorted Domain: " + str(sortedDomain))
 
     # TASK 5 CODE HERE
     
-
-    print("out of order values")
     #Change this to return an ordered list
     return sortedDomain
 
@@ -465,38 +481,50 @@ def backtracking_search(puzzle):
 
     # 1. Base case, is input [puzzle] solved? If so, return the puzzle. Use is_solved() function
     #    to see if the puzzle is solved.
+    if puzzle.is_solved():
+        return puzzle
 
     # 2. Select a variable to assign next ( use select_variable() function, which returns 
     #    row and column of the variable 
+    selRow, selCol = select_variable(puzzle)
 
     # 3. Select an ordering over the values (use order_values(r,c) where r, c are the row
     #    and column of the selected variable.  It returns a list of values
+    orderedDomain = order_values(puzzle, selRow, selCol)
+
 
     # 4. For each value in the ordered list:
+    for num in orderedDomain:
 
         # 4.1 Get a copy of the puzzle to modify
-        #     4.1.a Create new puzzle
-        
-        #     4.1.b Set it to be equal to the current puzzle (use copy_puzzle())
+        puzCopy = Sudoku()
+        puzCopy.copy_puzzle(puzzle)
+        selCell = puzCopy.cells[selRow][selCol]
 
         # 4.2 Assign current value to selected variable (use assign_value())
+        selCell.assign_value(num)
 
         # 4.3 Forward check from this assignment (use forward_check(), in 'remove' mode)
         #     which will return False if this assignment is invalid (empty domain was found)
         #     or True if it is valid. 
-
-        # 4.4 If forward checking detects a problem, then continue to the next value
+        isValid = puzCopy.forward_check(selRow, selCol, num, mode='remove')
+        if (not isValid):
+            continue
 
         # 4.5 If forward checking doesn't detect problem, then recurse on the 
         #     modified puzzle (call backtracking_search())
+        solvedPuzzle = backtracking_search(puzCopy)
 
         # 4.6 If the search succeeds (return value of backtracking is not None)
         #     return solved puzzle! (this is what backtracking_search should return)
+        if (solvedPuzzle != None):
+            return solvedPuzzle
 
         # 4.7 If search is a failure, continue with next value for this variable
 
     # 5. If all values for the chosen variable failed, return failure (None)
-    # return None
+    return None
+
     
 if __name__ == "__main__":
 
