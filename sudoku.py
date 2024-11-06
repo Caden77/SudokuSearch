@@ -341,7 +341,8 @@ def count_constraints(puzzle, row, column):
             continue
         r, c = puzzle.get_row_column(grid, cell)
         gridCell = puzzle.cells[r][c]
-        unassignedCount += len(gridCell.domain)
+        if gridCell.value == None:
+            unassignedCount += 1
     #row
     for colInd in range(0, len(puzzle.cells[row])):
         if colInd == column:
@@ -351,7 +352,8 @@ def count_constraints(puzzle, row, column):
         if currGrid == grid:
             continue
         rowCell = puzzle.cells[row][colInd]
-        unassignedCount += len(rowCell.domain)
+        if rowCell.value == None:
+            unassignedCount += 1
 
     #column
     for rowInd in range(0, len(puzzle.cells)):
@@ -362,7 +364,8 @@ def count_constraints(puzzle, row, column):
         if currGrid == grid:
             continue
         colCell = puzzle.cells[rowInd][column]
-        unassignedCount += len(colCell.domain)
+        if colCell.value == None:
+            unassignedCount += 1
     
     #MODIFY THIS
     return unassignedCount
@@ -419,6 +422,7 @@ def order_values(puzzle, row, column):
 
     # TASK 5 CODE HERE
     
+
     #Change this to return an ordered list
     return domain
 
