@@ -349,7 +349,7 @@ def count_constraints(puzzle, row, column):
         unassignedCount += len(colCell.domain)
     
     #MODIFY THIS
-    # return 0
+    return unassignedCount
 
 def get_unassigned_variables(puzzle):
     '''
