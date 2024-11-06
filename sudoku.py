@@ -174,22 +174,6 @@ class Sudoku():
         if mode == 'remove':
             hasEmptyDomain = False
 
-            #row
-            for colInd in range(0, len(self.cells[row])):
-                if colInd == column:
-                    continue
-                rowCell = self.cells[row][colInd]
-                hasValue = rowCell.remove_value(value)
-                if (hasValue == False):
-                    hasEmptyDomain = True
-            #column
-            for rowInd in range(0, len(self.cells)):
-                if rowInd == row:
-                    continue
-                colCell = self.cells[rowInd][column]
-                hasValue = colCell.remove_value(value)
-                if (hasValue == False):
-                    hasEmptyDomain = True
             #grid
             grid, cell = self.get_grid_cell(row, column)
             for cellInd in range(0, 9):
@@ -200,25 +184,38 @@ class Sudoku():
                 hasValue = gridCell.remove_value(value)
                 if (hasValue == False):
                     hasEmptyDomain = True
-                    
-            return not hasEmptyDomain
-        elif mode == 'count': 
-            removeCount = 0
-
             #row
             for colInd in range(0, len(self.cells[row])):
                 if colInd == column:
                     continue
+
+                #leave out already counted grids
+                currGrid, currCell = self.get_grid_cell(row, colInd)
+                if currGrid == grid:
+                    continue
+
+                #remove
                 rowCell = self.cells[row][colInd]
-                if (rowCell.domain.count(value) > 0):
-                    removeCount += 1
+                hasValue = rowCell.remove_value(value)
+                if (hasValue == False):
+                    hasEmptyDomain = True
             #column
             for rowInd in range(0, len(self.cells)):
                 if rowInd == row:
                     continue
+                #leave out already counted grids
+                currGrid, currCell = self.get_grid_cell(rowInd, column)
+                if currGrid == grid:
+                    continue
+
                 colCell = self.cells[rowInd][column]
-                if (colCell.domain.count(value) > 0):
-                    removeCount += 1
+                hasValue = colCell.remove_value(value)
+                if (hasValue == False):
+                    hasEmptyDomain = True
+                    
+            return not hasEmptyDomain
+        elif mode == 'count': 
+            removeCount = 0
             #grid
             grid, cell = self.get_grid_cell(row, column)
             for cellInd in range(0, 9):
@@ -227,6 +224,30 @@ class Sudoku():
                 r, c = self.get_row_column(grid, cell)
                 gridCell = self.cells[r][c]
                 if (gridCell.domain.count(value) > 0):
+                    removeCount += 1
+            #row
+            for colInd in range(0, len(self.cells[row])):
+                if colInd == column:
+                    continue
+                #leave out already counted grids
+                currGrid, currCell = self.get_grid_cell(row, colInd)
+                if currGrid == grid:
+                    continue
+
+                rowCell = self.cells[row][colInd]
+                if (rowCell.domain.count(value) > 0):
+                    removeCount += 1
+            #column
+            for rowInd in range(0, len(self.cells)):
+                if rowInd == row:
+                    continue
+                #leave out already counted grids
+                currGrid, currCell = self.get_grid_cell(rowInd, column)
+                if currGrid == grid:
+                    continue
+
+                colCell = self.cells[rowInd][column]
+                if (colCell.domain.count(value) > 0):
                     removeCount += 1
 
             return removeCount
@@ -297,19 +318,6 @@ def count_constraints(puzzle, row, column):
     # TASK 3 CODE HERE
     unassignedCount = 0
 
-    #row
-    for colInd in range(0, len(puzzle.cells[row])):
-        if colInd == column:
-            continue
-        rowCell = puzzle.cells[row][colInd]
-        unassignedCount += len(rowCell.domain)
-
-    #column
-    for rowInd in range(0, len(puzzle.cells)):
-        if rowInd == row:
-            continue
-        colCell = puzzle.cells[rowInd][column]
-        unassignedCount += len(colCell.domain)
     #grid
     grid, cell = puzzle.get_grid_cell(row, column)
     for cellInd in range(0, 9):
@@ -318,8 +326,27 @@ def count_constraints(puzzle, row, column):
         r, c = puzzle.get_row_column(grid, cell)
         gridCell = puzzle.cells[r][c]
         unassignedCount += len(gridCell.domain)
+    #row
+    for colInd in range(0, len(puzzle.cells[row])):
+        if colInd == column:
+            continue
+        #leave out already counted grids
+        currGrid, currCell = puzzle.get_grid_cell(row, colInd)
+        if currGrid == grid:
+            continue
+        rowCell = puzzle.cells[row][colInd]
+        unassignedCount += len(rowCell.domain)
 
-    #TODO: account for double counts in grid calculation for both task 2 and task 3
+    #column
+    for rowInd in range(0, len(puzzle.cells)):
+        if rowInd == row:
+            continue
+        #leave out already counted grids
+        currGrid, currCell = puzzle.get_grid_cell(rowInd, column)
+        if currGrid == grid:
+            continue
+        colCell = puzzle.cells[rowInd][column]
+        unassignedCount += len(colCell.domain)
     
     #MODIFY THIS
     # return 0
